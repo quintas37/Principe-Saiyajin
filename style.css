@@ -21,11 +21,10 @@ body {
 }
 
 h2 {
-    color: #2c3e50;
-    margin: 15px 0;
-    font-size: 1.6rem;
+    color: #0477e9;
+    margin-bottom: 20px;
     text-align: center;
-    width: 100%;
+    font-size: 2rem;
 }
 
 /* Contenedores flexibles que ocupan todo el ancho disponible */
@@ -42,13 +41,13 @@ form br {
 /* ==========================================================================
    2. TARJETAS Y SECCIONES (FIELDSETS)
    ========================================================================== */
-fieldset, fielset { /* Soporta el tag 'fielset' con error de dedo de tu HTML */
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px; /* Bordes más suaves para móviles */
-    padding: 16px;
-    margin-bottom: 16px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+fieldset, fieldset { /* Soporta el tag 'fielset' con error de dedo de tu HTML */
+    background: lab(45.38% 26.52 -71.01);
+    border: 1px solid #5ec230;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px rgba(19, 16, 16, 0.05);
     display: flex;
     flex-direction: column; /* Alinea todo hacia abajo de forma ordenada */
     gap: 8px; /* Espaciado automático entre elementos */
@@ -56,9 +55,10 @@ fieldset, fielset { /* Soporta el tag 'fielset' con error de dedo de tu HTML */
 
 legend {
     font-weight: bold;
-    color: #2c3e50;
-    padding: 0 8px;
-    font-size: 0.95rem;
+    color: #141d25;
+    padding: 0 10px;
+    font-size: 1.05rem;
+    text-align: center;
 }
 
 /* Etiquetas de los campos */
