@@ -1,466 +1,159 @@
-* 🎨 VARIABLES DE DISEÑO (Colores y Tipografía) */
 
-/* --- VARIABLES GLOBALES (Tema Institucional Ajustable) --- */
-:root {
-  --primary-color: #003366;       /* Azul institucional de alta confianza */
-  --primary-dark: #002244;        /* Variación oscura para interacciones */
-  --accent-color: #0284c7;         /* Azul secundario para destaques y enlaces */
-  --success-color: #15803d;        /* Verde accesibilidad para confirmaciones */
-  --error-color: #b91c1c;          /* Rojo con alto contraste para alertas */
-  --text-dark: #1e293b;            /* Gris casi negro para lectura óptima */
-  --text-muted: #64748b;           /* Gris medio para textos secundarios */
-  --bg-main: #f8fafc;              /* Fondo general limpio */
-  --bg-card: #ffffff;              /* Fondo de módulos */
-  --border-color: #cbd5e1;         /* Gris sutil para delimitadores */
-  --radius: 8px;                   /* Bordes curvos modernos y suaves */
-  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
-  --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-}
+/**
+ * Portal de Servicios Ciudadanos
+ * Optimizada para rendimiento y accesibilidad.*/
 
-/* --- RESET INTEGRAL & ACCESIBILIDAD --- */
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+document.addEventListener('DOMContentLoaded', () => {
+  // --- SELECTORES DE ELEMENTOS ---
+  const form = document.getElementById('formCitas');
+  const inputFecha = document.getElementById('fecha');
+  const errorFecha = document.getElementById('error-fecha');
+  const selectHora = document.getElementById('hora');
+  const ticketCita = document.getElementById('ticketCita');
+  const ticketNombre = document.getElementById('ticketNombre');
 
-html {
-  scroll-behavior: smooth; /* Desplazamiento fluido nativo */
-}
+  // --- CONFIGURACIÓN ---
+  const CONFIG = {
+    horaInicio: 9,
+    horaFin: 18,
+    intervaloMinutos: 30
+  };
 
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background-color: var(--bg-main);
-  color: var(--text-dark);
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-}
+  // --- INICIALIZACIÓN ---
+  const inicializarFormulario = () => {
+    // 1. Limitar fecha mínima a hoy de forma local (evita desfase UTC)
+    const hoy = new Date();
+    const offset = hoy.getTimezoneOffset();
+    const hoyLocal = new Date(hoy.getTime() - (offset * 60 * 1000));
+    inputFecha.min = hoyLocal.toISOString().split('T')[0];
 
-main {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem 1.5rem;
-}
+    // 2. Poblar select de horas dinámicamente
+    poblarHorarios();
+  };
 
-/* --- NAVEGACIÓN Y ENCABEZADO SUPERIOR --- */
-.header {
-  background-color: var(--bg-card);
-  border-bottom: 1px solid var(--border-color);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  box-shadow: var(--shadow);
-}
+  // --- FUNCIONES AUXILIARES ---
+  
+  // Genera las opciones de hora dinámicamente en formato 12h para el usuario y 24h para el valor
+  const poblarHorarios = () => {
+    const fragment = document.createDocumentFragment();
+    
+    // Opción por defecto
+    const defecto = document.createElement('option');
+    defecto.value = "";
+    defecto.disabled = true;
+    defecto.selected = true;
+    defecto.textContent = "-- Selecciona una hora --";
+    fragment.appendChild(defecto);
 
-.header-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1rem 1.5rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+    for (let h = CONFIG.horaInicio; h <= CONFIG.horaFin; h++) {
+      const hora24 = String(h).padStart(2, '0');
+      
+      // Bloque :00
+      fragment.appendChild(crearOpcionHora(`${hora24}:00`, h, "00"));
 
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--primary-color);
-}
+      // Bloque :30 (No incluir 18:30 si el límite es 18:00)
+      if (h < CONFIG.horaFin) {
+        fragment.appendChild(crearOpcionHora(`${hora24}:30`, h, "30"));
+      }
+    }
+    selectHora.appendChild(fragment);
+  };
 
-.nav {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-}
+  // Formatea el texto de visualización a formato am/pm de manera elegante
+  const crearOpcionHora = (valor24, hora, minutos) => {
+    const sufijo = hora >= 12 ? 'p.m.' : 'a.m.';
+    let hora12 = hora % 12;
+    hora12 = hora12 === 0 ? 12 : hora12; // Convierte 0 a 12 para medianoche/mediodía
+    
+    const opcion = document.createElement('option');
+    opcion.value = valor24;
+    opcion.textContent = `${hora12}:${minutos} ${sufijo}`;
+    return opcion;
+  };
 
-.nav a {
-  text-decoration: none;
-  color: var(--text-dark);
-  font-weight: 500;
-  font-size: 0.95rem;
-  transition: var(--transition);
-}
+  // --- CONTROLADORES DE EVENTOS (MANEJO DE EVENTOS) ---
 
-.nav a:hover {
-  color: var(--accent-color);
-}
+  // Validación en tiempo real del input de fecha
+  inputFecha.addEventListener('input', (e) => {
+    const fechaSeleccionada = new Date(e.target.value + 'T00:00:00');
+    const diaSemana = fechaSeleccionada.getDay(); // 0: Domingo, 6: Sábado
 
-.btn-nav {
-  background-color: var(--primary-color);
-  color: #fff !important;
-  padding: 0.5rem 1rem;
-  border-radius: var(--radius);
-}
+    if (diaSemana === 0 || diaSemana === 6) {
+      // Mostrar error visual moderno
+      errorFecha.style.display = 'block';
+      e.target.classList.add('input-error');
+      e.target.value = ''; // Resetea el valor inválido
+    } else {
+      // Ocultar error si el día es correcto
+      errorFecha.style.display = 'none';
+      e.target.classList.remove('input-error');
+    }
+  });
 
-.btn-nav:hover {
-  background-color: var(--primary-dark);
-}
+  // Procesamiento y envío del formulario
+  form.addEventListener('submit', (e) => {
+    e.preventDefault(); // Evita que la página se recargue
 
-/* --- COMPONENTES COMUNES DE SECCIÓN --- */
-.section {
-  padding: 5rem 0;
-}
+    // Extraer y sanitizar datos de forma segura
+    const datosCita = {
+      nombre: document.getElementById('nombre').value.trim(),
+      tramite: document.getElementById('tramite').options[document.getElementById('tramite').selectedIndex].text,
+      fecha: inputFecha.value.split('-').reverse().join('/'), // Convierte YYYY-MM-DD a DD/MM/YYYY
+      hora: selectHora.options[selectHora.selectedIndex].text
+    };
 
-.bg-light {
-  background-color: #f1f5f9;
-  margin-left: -100vw;
-  margin-right: -100vw;
-  padding-left: 100vw;
-  padding-right: 100vw;
-}
+    // Renderizar la información en el Ticket final de forma elegante
+    ticketNombre.innerHTML = `
+      <span style="display:block; margin-bottom: 0.5rem;"><strong>Ciudadano:</strong> ${datosCita.nombre}</span>
+      <span style="display:block; margin-bottom: 0.5rem;"><strong>Servicio:</strong> ${datosCita.tramite}</span>
+      <span style="display:block; margin-bottom: 0.5rem;"><strong>Fecha:</strong> ${datosCita.fecha}</span>
+      <span style="display:block;"><strong>Horario asignado:</strong> ${datosCita.hora}</span>
+    `;
 
-.section-tag {
-  display: inline-block;
-  background-color: rgba(2, 132, 199, 0.1);
-  color: var(--accent-color);
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 0.25rem 0.75rem;
-  border-radius: 50px;
-  margin-bottom: 0.75rem;
-}
+    // Efecto visual fluido para mostrar el ticket
+    form.style.opacity = '0.3';
+    form.style.pointerEvents = 'none'; // Deshabilita interacciones posteriores
+    
+    ticketCita.style.display = 'block';
+    ticketCita.style.opacity = '0';
+    ticketCita.style.transform = 'translateY(20px)';
+    ticketCita.style.transition = 'all 0.5s ease';
 
-.section-title {
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--primary-color);
-  margin-bottom: 0.5rem;
-}
+    // Disparador micro-timed para la animación de entrada
+    setTimeout(() => {
+      ticketCita.style.opacity = '1';
+      ticketCita.style.transform = 'translateY(0)';
+      ticketCita.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 50);
+  });
 
-.section-subtitle {
-  color: var(--text-muted);
-  font-size: 1.1rem;
-  margin-bottom: 2rem;
-}
+  // Ejecución inicial
+  inicializarFormulario();
+});
 
-/* --- REJILLA Y CONTENEDORES --- */
-.grid-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
-  margin-top: 2rem;
-}
+// --- FUNCIONES GLOBALES (Para los botones superiores del HTML) ---
+window.seleccionarTramite = (idTramite) => {
+  const selectTramite = document.getElementById('tramite');
+  if (selectTramite) {
+    selectTramite.value = idTramite;
+    // Dispara manualmente el evento de scroll suave hacia el formulario
+    document.getElementById('contacto').scrollIntoView({ behavior: 'smooth' });
+  }
+};
 
-/* --- PORTADA PRINCIPAL (HERO) --- */
-.hero {
-  padding: 6rem 0;
-  display: flex;
-  align-items: center;
-}
+window.filtrarRequisitos = (categoria, botonActivo) => {
+  // Cambiar estado visual de los botones de filtro
+  document.querySelectorAll('.btn-filter').forEach(btn => btn.classList.remove('active'));
+  botonActivo.classList.add('active');
 
-.hero-content {
-  max-width: 650px;
-}
-
-.badge {
-  background-color: var(--primary-color);
-  color: #fff;
-  font-size: 0.8rem;
-  font-weight: 600;
-  padding: 0.35rem 0.75rem;
-  border-radius: 50px;
-}
-
-.hero h1 {
-  font-size: 3.5rem;
-  line-height: 1.15;
-  font-weight: 800;
-  margin-top: 1.5rem;
-  margin-bottom: 1.5rem;
-  color: var(--primary-color);
-}
-
-.gradient-text {
-  background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.hero p {
-  font-size: 1.2rem;
-  color: var(--text-muted);
-  margin-bottom: 2rem;
-}
-
-.hero-buttons {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.btn-primary, .btn-secondary {
-  text-decoration: none;
-  padding: 0.8rem 1.75rem;
-  border-radius: var(--radius);
-  font-weight: 600;
-  font-size: 1rem;
-  transition: var(--transition);
-}
-
-.btn-primary {
-  background-color: var(--primary-color);
-  color: #fff;
-  box-shadow: 0 4px 10px rgba(0, 51, 102, 0.2);
-}
-
-.btn-primary:hover {
-  background-color: var(--primary-dark);
-  transform: translateY(-2px);
-}
-
-.btn-secondary {
-  background-color: transparent;
-  color: var(--primary-color);
-  border: 2px solid var(--primary-color);
-}
-
-.btn-secondary:hover {
-  background-color: rgba(0, 51, 102, 0.05);
-}
-
-/* --- TARJETAS DE SERVICIOS INTERACTIVAS (BOTONES) --- */
-button.card {
-  background-color: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius);
-  padding: 2rem;
-  text-align: left;
-  cursor: pointer;
-  font-family: inherit;
-  box-shadow: var(--shadow);
-  transition: var(--transition);
-  display: flex;
-  flex-direction: column;
-}
-
-button.card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
-  border-color: var(--accent-color);
-}
-
-.card-icon {
-  width: 50px;
-  height: 50px;
-  border-radius: var(--radius);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  margin-bottom: 1.25rem;
-}
-
-.icon-blue { background-color: rgba(2, 132, 199, 0.1); color: var(--accent-color); }
-.icon-purple { background-color: rgba(147, 51, 234, 0.1); color: #9333ea; }
-.icon-green { background-color: rgba(21, 128, 61, 0.1); color: var(--success-color); }
-
-button.card h3 {
-  font-size: 1.25rem;
-  color: var(--primary-color);
-  margin-bottom: 0.5rem;
-}
-
-button.card p {
-  color: var(--text-muted);
-  font-size: 0.95rem;
-  flex-grow: 1;
-  margin-bottom: 1rem;
-}
-
-.card-link {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--accent-color);
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-/* --- FILTROS Y REQUISITOS DINÁMICOS --- */
-.filter-container {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  margin-bottom: 2rem;
-}
-
-.btn-filter {
-  background-color: var(--bg-card);
-  border: 1px solid var(--border-color);
-  padding: 0.5rem 1.25rem;
-  border-radius: 50px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  color: var(--text-dark);
-  transition: var(--transition);
-}
-
-.btn-filter:hover {
-  background-color: #f1f5f9;
-}
-
-.btn-filter.active {
-  background-color: var(--primary-color);
-  color: #fff;
-  border-color: var(--primary-color);
-}
-
-.requisitos-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.req-item {
-  background-color: var(--bg-card);
-  border-left: 4px solid var(--accent-color);
-  padding: 1.25rem;
-  border-radius: 0 var(--radius) var(--radius) 0;
-  box-shadow: var(--shadow);
-  display: flex;
-  gap: 1.25rem;
-  align-items: flex-start;
-  animation: fadeIn 0.4s ease forwards;
-}
-
-.req-icon {
-  font-size: 1.5rem;
-  color: var(--primary-color);
-  margin-top: 0.2rem;
-}
-
-.req-item strong {
-  display: block;
-  font-size: 1.1rem;
-  color: var(--primary-color);
-}
-
-.req-item p {
-  color: var(--text-muted);
-  font-size: 0.95rem;
-}
-
-/* --- CONTROL DE MAPA E INFORMACIÓN --- */
-.geo-grid {
-  grid-template-columns: 1fr 1.5fr;
-}
-
-.office-info-card {
-  background-color: var(--bg-card);
-  padding: 2rem;
-  border-radius: var(--radius);
-  border: 1px solid var(--border-color);
-  box-shadow: var(--shadow);
-}
-
-.office-info-card h3 {
-  color: var(--primary-color);
-  margin-bottom: 1.5rem;
-}
-
-.info-link {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-  color: var(--text-dark);
-}
-
-.info-link i {
-  color: var(--accent-color);
-  width: 20px;
-}
-
-/* Simulación visual de mapa interactivo moderno (Glassmorphism) */
-.office-map-container {
-  background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
-  border-radius: var(--radius);
-  min-height: 250px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-
-.glass-map {
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  padding: 2rem;
-  border-radius: var(--radius);
-  text-align: center;
-  box-shadow: var(--shadow-lg);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-}
-
-.map-pulse {
-  font-size: 3rem;
-  color: var(--error-color);
-  animation: pulse 2s infinite;
-  margin-bottom: 0.5rem;
-}
-
-.map-coordinates {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-}
-
-/* --- FORMULARIO DE CITAS MODERNO --- */
-.appointment-form {
-  background-color: var(--bg-card);
-  padding: 2.5rem;
-  border-radius: var(--radius);
-  border: 1px solid var(--border-color);
-  box-shadow: var(--shadow-lg);
-  max-width: 700px;
-  margin: 0 auto;
-  transition: var(--transition);
-}
-
-.form-group {
-  margin-bottom: 1.5rem;
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-}
-
-.appointment-form label {
-  display: block;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  color: var(--primary-color);
-  font-size: 0.95rem;
-}
-
-.appointment-form label i {
-  margin-right: 0.25rem;
-  color: var(--accent-color);
-}
-
-.appointment-form input[type="text"],
-.appointment-form input[type="date"],
-.appointment-form select {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  font-size: 1rem;
-  border: 1.5px solid var(--border-color);
-  border-radius: var(--radius);
-  background-color: #fff;
-  color: var(--text-dark);
-  font-family: inherit;
-  transition: var(--transition);
-}
-
-.appointment-form input:focus,
-.appointment-form select:focus {
+  // Filtrar la lista de requisitos con opacidad y transiciones
+  document.querySelectorAll('.req-item').forEach(item => {
+    const categoriasItem = item.getAttribute('data-category').split(' ');
+    
+    if (categoria === 'todos' || categoriasItem.includes(categoria)) {
+      item.style.display = 'flex';
+    } else {
+      item.style.display = 'none';
+    }
+  });
+};
