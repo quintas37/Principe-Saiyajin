@@ -1,284 +1,466 @@
-     root {
-    --primary-color: #0f172a;    /* Azul medianoche (Gubernamental/Serio) */
-    --accent-color: #2563eb;     /* Azul brillante (Botones y enlaces) */
-    --text-color: #334155;       /* Gris oscuro (Lectura cómoda) */
-    --bg-light: #f8fafc;         /* Fondo gris claro alternante */
-    --white: #ffffff;
-    --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+/* 🎨 VARIABLES DE DISEÑO (Colores y Tipografía) */
+
+/* --- VARIABLES GLOBALES (Tema Institucional Ajustable) --- */
+:root {
+  --primary-color: #003366;       /* Azul institucional de alta confianza */
+  --primary-dark: #002244;        /* Variación oscura para interacciones */
+  --accent-color: #0284c7;         /* Azul secundario para destaques y enlaces */
+  --success-color: #15803d;        /* Verde accesibilidad para confirmaciones */
+  --error-color: #b91c1c;          /* Rojo con alto contraste para alertas */
+  --text-dark: #1e293b;            /* Gris casi negro para lectura óptima */
+  --text-muted: #64748b;           /* Gris medio para textos secundarios */
+  --bg-main: #f8fafc;              /* Fondo general limpio */
+  --bg-card: #ffffff;              /* Fondo de módulos */
+  --border-color: #cbd5e1;         /* Gris sutil para delimitadores */
+  --radius: 8px;                   /* Bordes curvos modernos y suaves */
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+  --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* 🧱 ESTILOS GENERALES RESET */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+/* --- RESET INTEGRAL & ACCESIBILIDAD --- */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 html {
-    scroll-behavior: smooth;
-    font-family: var(--font-family);
-    color: var(--text-color);
-    line-height: 1.6;
+  scroll-behavior: smooth; /* Desplazamiento fluido nativo */
 }
 
-/* 🏷️ ENCABEZADO Y NAVEGACIÓN RECTILÍNEA */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--bg-main);
+  color: var(--text-dark);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+/* --- NAVEGACIÓN Y ENCABEZADO SUPERIOR --- */
 .header {
-    background-color: var(--primary-color);
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  background-color: var(--bg-card);
+  border-bottom: 1px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow);
 }
 
 .header-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .logo {
-    color: var(--white);
-    font-size: 1.25rem;
-    font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--primary-color);
 }
 
-.logo span {
-    color: #93c5fd;
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
 }
 
 .nav a {
-    color: var(--white);
-    text-decoration: none;
-    margin-left: 1.5rem;
-    font-size: 0.95rem;
-    transition: color 0.3s;
-    dissplay::flex;
-    justify content: space-between;
+  text-decoration: none;
+  color: var(--text-dark);
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: var(--transition);
 }
 
 .nav a:hover {
-    color: #93c5fd;
+  color: var(--accent-color);
 }
 
-.nav .btn-nav {
-    background-color: var(--accent-color);
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
+.btn-nav {
+  background-color: var(--primary-color);
+  color: #fff !important;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius);
 }
 
-.nav .btn-nav:hover {
-    background-color: #1d4ed8;
-    color: var(--white);
+.btn-nav:hover {
+  background-color: var(--primary-dark);
 }
 
-/* 🏠 SECCIÓN HERO (PORTADA PRINCIPAL) */
-.hero {
-    background: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.85)), 
-                url('https://unsplash.com') no-repeat center center/cover;
-    height: 60vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    color: var(--white);
-    padding: 0 2rem;
-}
-
-.hero-content h1 {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-}
-
-.hero-content p {
-    font-size: 1.1rem;
-    max-width: 700px;
-    margin: 0 auto 2rem auto;
-    opacity: 0.9;
-}
-
-.btn-primary {
-    background-color: var(--accent-color);
-    color: var(--white);
-    text-decoration: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 4px;
-    font-weight: bold;
-    transition: background 0.3s;
-}
-
-.btn-primary:hover {
-    background-color: #1d4ed8;
-}
-
-/* 🧱 SECCIONES COMUNES */
+/* --- COMPONENTES COMUNES DE SECCIÓN --- */
 .section {
-    padding: 4.5rem 2rem;
-    max-width: 1200px;
-    margin: 0 auto;
+  padding: 5rem 0;
 }
 
 .bg-light {
-    background-color: var(--bg-light);
-    max-width: 100%;
+  background-color: #f1f5f9;
+  margin-left: -100vw;
+  margin-right: -100vw;
+  padding-left: 100vw;
+  padding-right: 100vw;
+}
+
+.section-tag {
+  display: inline-block;
+  background-color: rgba(2, 132, 199, 0.1);
+  color: var(--accent-color);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.25rem 0.75rem;
+  border-radius: 50px;
+  margin-bottom: 0.75rem;
 }
 
 .section-title {
-    text-align: center;
-    font-size: 2rem;
-    color: var(--primary-color);
-    margin-bottom: 1rem;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
 }
 
 .section-subtitle {
-    text-align: center;
-    margin-bottom: 3rem;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
 }
 
-/* 🎛️ DISEÑO EN REJILLA (GRID RESPONSIVO AUTOMÁTICO) */
+/* --- REJILLA Y CONTENEDORES --- */
 .grid-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    border-radius: 6px;
-    gap: 2rem;
-    max-width: 1200px;
-    margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
 }
 
-/* 🃏 TARJETAS DE SERVICIOS */
-.card {
-    background-color: var(--white);
-    padding: 2rem;
-    border-radius: 6px;
-    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-    border: 1px solid #e2e8f0;
+/* --- PORTADA PRINCIPAL --- */
+.hero {
+  padding: 6rem 0;
+  display: flex;
+  align-items: center;
+}
+
+.hero-content {
+  max-width: 650px;
+}
+
+.badge {
+  background-color: var(--primary-color);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.35rem 0.75rem;
+  border-radius: 50px;
+}
+
+.hero h1 {
+  font-size: 3.5rem;
+  line-height: 1.15;
+  font-weight: 800;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: var(--primary-color);
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero p {
+  font-size: 1.2rem;
+  color: var(--text-muted);
+  margin-bottom: 2rem;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.btn-primary, .btn-secondary {
+  text-decoration: none;
+  padding: 0.8rem 1.75rem;
+  border-radius: var(--radius);
+  font-weight: 600;
+  font-size: 1rem;
+  transition: var(--transition);
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(0, 51, 102, 0.2);
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-dark);
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: var(--primary-color);
+  border: 2px solid var(--primary-color);
+}
+
+.btn-secondary:hover {
+  background-color: rgba(0, 51, 102, 0.05);
+}
+
+/* --- TARJETAS DE SERVICIOS INTERACTIVAS (BOTONES) --- */
+button.card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 2rem;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+  display: flex;
+  flex-direction: column;
+}
+
+button.card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--accent-color);
 }
 
 .card-icon {
-    font-size: 2rem;
-    margin-bottom: 1rem;
+  width: 50px;
+  height: 50px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  margin-bottom: 1.25rem;
 }
 
-.card h3 {
-    margin-bottom: 0.5rem;
-    color: var(--primary-color);
+.icon-blue { background-color: rgba(2, 132, 199, 0.1); color: var(--accent-color); }
+.icon-purple { background-color: rgba(147, 51, 234, 0.1); color: #9333ea; }
+.icon-green { background-color: rgba(21, 128, 61, 0.1); color: var(--success-color); }
+
+button.card h3 {
+  font-size: 1.25rem;
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
 }
 
-/* 📋 ELEMENTOS DE REQUISITOS */
+button.card p {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  flex-grow: 1;
+  margin-bottom: 1rem;
+}
+
+.card-link {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--accent-color);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* --- FILTROS Y REQUISITOS DINÁMICOS --- */
+.filter-container {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+.btn-filter {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  padding: 0.5rem 1.25rem;
+  border-radius: 50px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--text-dark);
+  transition: var(--transition);
+}
+
+.btn-filter:hover {
+  background-color: #f1f5f9;
+}
+
+.btn-filter.active {
+  background-color: var(--primary-color);
+  color: #fff;
+  border-color: var(--primary-color);
+}
+
 .requisitos-list {
-    max-width: 700px;
-    margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .req-item {
-    background-color: var(--bg-light);
-    padding: 1rem 1.5rem;
-    margin-bottom: 1rem;
-    border-left: 4px solid var(--accent-color);
-    border-radius: 0 4px 4px 0;
+  background-color: var(--bg-card);
+  border-left: 4px solid var(--accent-color);
+  padding: 1.25rem;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  box-shadow: var(--shadow);
+  display: flex;
+  gap: 1.25rem;
+  align-items: flex-start;
+  animation: fadeIn 0.4s ease forwards;
 }
 
-/* 🗺️ MAPA SIMULADO */
-.map-placeholder {
-    background-color: #cbd5e1;
-    height: 250px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 6px;
-    font-weight: bold;
+.req-icon {
+  font-size: 1.5rem;
+  color: var(--primary-color);
+  margin-top: 0.2rem;
 }
 
-/* 📅 FORMULARIO DE CITAS */
+.req-item strong {
+  display: block;
+  font-size: 1.1rem;
+  color: var(--primary-color);
+}
+
+.req-item p {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+/* --- CONTROL DE MAPA E INFORMACIÓN --- */
+.geo-grid {
+  grid-template-columns: 1fr 1.5fr;
+}
+
+.office-info-card {
+  background-color: var(--bg-card);
+  padding: 2rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow);
+}
+
+.office-info-card h3 {
+  color: var(--primary-color);
+  margin-bottom: 1.5rem;
+}
+
+.info-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  color: var(--text-dark);
+}
+
+.info-link i {
+  color: var(--accent-color);
+  width: 20px;
+}
+
+/* Simulación visual de mapa interactivo moderno (Glassmorphism) */
+.office-map-container {
+  background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+  border-radius: var(--radius);
+  min-height: 250px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.glass-map {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 2rem;
+  border-radius: var(--radius);
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.map-pulse {
+  font-size: 3rem;
+  color: var(--error-color);
+  animation: pulse 2s infinite;
+  margin-bottom: 0.5rem;
+}
+
+.map-coordinates {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* --- FORMULARIO DE CITAS MODERNO --- */
 .appointment-form {
-    max-width: 600px;
-    margin: 0 auto;
-    background-color: var(--bg-light);
-    padding: 2.5rem;
-    border-radius: 8px;
-    border: 1px solid #e2e8f0;
+  background-color: var(--bg-card);
+  padding: 2.5rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-lg);
+  max-width: 700px;
+  margin: 0 auto;
+  transition: var(--transition);
 }
 
 .form-group {
-    margin-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
 }
 
 .form-row {
-    display: flex;
-    gap: 1rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
 }
 
-.form-row .form-group {
-    flex: 1;
+.appointment-form label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--primary-color);
+  font-size: 0.95rem;
 }
 
-label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 600;
-    font-size: 0.9rem;
+.appointment-form label i {
+  margin-right: 0.25rem;
+  color: var(--accent-color);
 }
 
-input, select {
-    width: 100%;
-    padding: 0.65rem;
-    border: 1px solid #cbd5e1;
-    border-radius: 4px;
-    font-family: var(--font-family);
+.appointment-form input[type="text"],
+.appointment-form input[type="date"],
+.appointment-form select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius);
+  background-color: #fff;
+  color: var(--text-dark);
+  font-family: inherit;
+  transition: var(--transition);
 }
 
-input:focus, select:focus {
-    outline: none;
-    border-color: var(--accent-color);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
-}
-
-.btn-submit {
-    width: 100%;
-    background-color: var(--accent-color);
-    color: var(--white);
-    border: none;
-    padding: 0.75rem;
-    border-radius: 4px;
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background 0.3s;
-}
-
-.btn-submit:hover {
-    background-color: #1d4ed8;
-}
-
-/* 👤 PIE DE PÁGINA */
-.footer {
-    background-color: var(--primary-color);
-    color: #94a3b8;
-    text-align: center;
-    padding: 2rem;
-    font-size: 0.85rem;
-    margin-top: 4rem;
-}
-
-/* 📱 ADAPTABILIDAD (MEDIA QUERIES PARA MÓVILES) */
-@media (max-width: 768px) {
-    .header-container {
-        flex-direction: column;
-        gap: 1rem;
-    }
-    
-    .nav a {
-        margin: 0 0.5rem;
-    }
-    
-    .hero-content h1 {
-        font-size: 1.8rem;
-    }
-    
-    .form-row {
-        flex-direction: column;
-        gap: 0;
-    }
-}
+.appointment-form input:focus,
+.appointment-form select:focus {
