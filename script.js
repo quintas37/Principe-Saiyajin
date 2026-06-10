@@ -1,7 +1,7 @@
 /**
  * Portal de Servicios Ciudadanos - Lógica de Negocio (script.js)
  * Optimizada para rendimiento, accesibilidad y experiencia de usuario.
- */
+  Ing. Isaias Quintas Morales*/
 
 document.addEventListener('DOMContentLoaded', () => {
   // --- SELECTORES DE ELEMENTOS ---
