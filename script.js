@@ -1,177 +1,159 @@
-document.addEventListener("DOMContentLoaded", () => {
-    inicializarMenu();
-    inicializarFormulario();
-    verificarCitaExistente();
-});
+/**
+ * Portal de Servicios Ciudadanos - Lógica de Negocio (script.js)
+ * Optimizada para rendimiento, accesibilidad y experiencia de usuario.
+ */
 
-// 1. ANIMACIÓN DEL ENCABEZADO CON EL SCROLL
-function inicializarMenu() {
-    const header = document.getElementById("mainHeader");
-    if (!header) return; // Validación de seguridad
+document.addEventListener('DOMContentLoaded', () => {
+  // --- SELECTORES DE ELEMENTOS ---
+  const form = document.getElementById('formCitas');
+  const inputFecha = document.getElementById('fecha');
+  const errorFecha = document.getElementById('error-fecha');
+  const selectHora = document.getElementById('hora');
+  const ticketCita = document.getElementById('ticketCita');
+  const ticketNombre = document.getElementById('ticketNombre');
 
-    window.addEventListener("scroll", () => {
-        if (window.scrollY > 50) {
-            header.classList.add("scrolled");
-        } else {
-            header.classList.remove("scrolled");
-        }
-    });
-}
+  // --- CONFIGURACIÓN ---
+  const CONFIG = {
+    horaInicio: 9,
+    horaFin: 18,
+    intervaloMinutos: 30
+  };
 
-// 2. SISTEMA DE FILTRADO DINÁMICO DE REQUISITOS
-function filtrarRequisitos(categoria, botonActivo) {
-    // Actualizar estados visuales de los botones de filtro
-    const botones = document.querySelectorAll(".btn-filter");
-    botones.forEach(btn => btn.classList.remove("active"));
+  // --- INICIALIZACIÓN ---
+  const inicializarFormulario = () => {
+    // 1. Limitar fecha mínima a hoy de forma local (evita desfase UTC)
+    const hoy = new Date();
+    const offset = hoy.getTimezoneOffset();
+    const hoyLocal = new Date(hoy.getTime() - (offset * 60 * 1000));
+    inputFecha.min = hoyLocal.toISOString().split('T')[0];
+
+    // 2. Poblar select de horas dinámicamente
+    poblarHorarios();
+  };
+
+  // --- FUNCIONES AUXILIARES ---
+  
+  // Genera las opciones de hora dinámicamente en formato 12h para el usuario y 24h para el valor
+  const poblarHorarios = () => {
+    const fragment = document.createDocumentFragment();
     
-    if (botonActivo) {
-        botonActivo.classList.add("active");
+    // Opción por defecto
+    const defecto = document.createElement('option');
+    defecto.value = "";
+    defecto.disabled = true;
+    defecto.selected = true;
+    defecto.textContent = "-- Selecciona una hora --";
+    fragment.appendChild(defecto);
+
+    for (let h = CONFIG.horaInicio; h <= CONFIG.horaFin; h++) {
+      const hora24 = String(h).padStart(2, '0');
+      
+      // Bloque :00
+      fragment.appendChild(crearOpcionHora(`${hora24}:00`, h, "00"));
+
+      // Bloque :30 (No incluir 18:30 si el límite es 18:00)
+      if (h < CONFIG.horaFin) {
+        fragment.appendChild(crearOpcionHora(`${hora24}:30`, h, "30"));
+      }
     }
+    selectHora.appendChild(fragment);
+  };
 
-    // Filtrar los elementos del DOM
-    const items = document.querySelectorAll(".req-item");
-    items.forEach(item => {
-        const categoriaAttr = item.getAttribute("data-category");
-        if (!categoriaAttr) return;
+  // Formatea el texto de visualización a formato am/pm de manera elegante
+  const crearOpcionHora = (valor24, hora, minutos) => {
+    const sufijo = hora >= 12 ? 'p.m.' : 'a.m.';
+    let hora12 = hora % 12;
+    hora12 = hora12 === 0 ? 12 : hora12; // Convierte 0 a 12 para medianoche/mediodía
+    
+    const opcion = document.createElement('option');
+    opcion.value = valor24;
+    opcion.textContent = `${hora12}:${minutos} ${sufijo}`;
+    return opcion;
+  };
 
-        const categoriasItem = categoriaAttr.split(" ");
-        if (categoria === "todos" || categoriasItem.includes(categoria)) {
-            item.classList.remove("hidden");
-            item.style.opacity = "1";
-            item.style.transform = "scale(1)";
-        } else {
-            item.classList.add("hidden");
-        }
-    });
-}
+  // --- CONTROLADORES DE EVENTOS (MANEJO DE EVENTOS) ---
 
-// Conectar las tarjetas de servicios directamente con el filtro automático
-function seleccionarTramite(tipoTramite) {
-    const botonCorrespondiente = document.querySelector(`.btn-filter[onclick*="${tipoTramite}"]`);
-    if (botonCorrespondiente) {
-        botonCorrespondiente.click();
+  // Validación en tiempo real del input de fecha
+  inputFecha.addEventListener('input', (e) => {
+    const fechaSeleccionada = new Date(e.target.value + 'T00:00:00');
+    const diaSemana = fechaSeleccionada.getDay(); // 0: Domingo, 6: Sábado
+
+    if (diaSemana === 0 || diaSemana === 6) {
+      // Mostrar error visual moderno
+      errorFecha.style.display = 'block';
+      e.target.classList.add('input-error');
+      e.target.value = ''; // Resetea el valor inválido
     } else {
-        // Fallback en caso de que no se encuentre el botón exacto
-        filtrarRequisitos(tipoTramite, null);
+      // Ocultar error si el día es correcto
+      errorFecha.style.display = 'none';
+      e.target.classList.remove('input-error');
     }
-    
-    const seccionRequisitos = document.getElementById("requisitos");
-    if (seccionRequisitos) {
-        seccionRequisitos.scrollIntoView({ behavior: "smooth" });
-    }
+  });
 
-    // Auto-seleccionar en el formulario abajo
-    const selectTramite = document.getElementById("tramite");
-    if (selectTramite) {
-        selectTramite.value = tipoTramite;
-    }
-}
+  // Procesamiento y envío del formulario
+  form.addEventListener('submit', (e) => {
+    e.preventDefault(); // Evita que la página se recargue
 
-// 3. VALIDACIÓN INTELIGENTE DEL FORMULARIO DE FECHAS
-function inicializarFormulario() {
-    const inputFecha = document.getElementById("fecha");
-    const form = document.getElementById("formCitas");
-
-    if (!inputFecha || !form) return;
-
-    // Configurar el límite de fecha mínimo (Día de hoy en zona horaria local)
-    const hoyLocal = new Date();
-    const anio = hoyLocal.getFullYear();
-    const mes = String(hoyLocal.getMonth() + 1).padStart(2, '0');
-    const dia = String(hoyLocal.getDate()).padStart(2, '0');
-    const fechaMinimaLocal = `${anio}-${mes}-${dia}`;
-    
-    inputFecha.setAttribute("min", fechaMinimaLocal);
-
-    // Evitar que el usuario guarde un fin de semana (Corrección de Zona Horaria)
-    inputFecha.addEventListener("input", (e) => {
-        if (!e.target.value) return;
-        
-        // Reemplazar guiones por diagonales fuerza a JavaScript a interpretar la fecha como hora local
-        const fechaLocal = new Date(e.target.value.replace(/-/g, '\/'));
-        const diaSemana = fechaLocal.getDay(); // 0 = Domingo, 6 = Sábado
-        
-        if (diaSemana === 0 || diaSemana === 6) {
-            alert("Las oficinas de atención ciudadana operan únicamente de Lunes a Viernes.");
-            e.target.value = "";
-        }
-    });
-
-    // Procesar el envío y guardado de datos
-    form.addEventListener("submit", (e) => {
-        e.preventDefault();
-        
-        const selectTramite = document.getElementById("tramite");
-        const inputNombre = document.getElementById("nombre");
-        const inputHora = document.getElementById("hora");
-
-        const datosCita = {
-            nombre: inputNombre ? inputNombre.value : "Ciudadano Anónimo",
-            tramite: selectTramite ? selectTramite.options[selectTramite.selectedIndex].text : "Trámite General",
-            fecha: inputFecha.value,
-            hora: inputHora ? inputHora.value : "00:00"
-        };
-
-        // Guardar de forma persistente en el navegador
-        localStorage.setItem("citaCiudadana", JSON.stringify(datosCita));
-        mostrarTicket(datosCita);
-    });
-}
-
-// 4. PERSISTENCIA DE DATOS Y RENDERIZADO DEL TICKET
-function mostrarTicket(datos) {
-    const form = document.getElementById("formCitas");
-    const ticket = document.getElementById("ticketCita");
-    
-    if (form) form.classList.add("hidden");
-    if (!ticket) return;
-
-    // Inyectar textos de forma segura con textContent (Previene XSS)
-    const campos = {
-        "ticketNombre": datos.nombre,
-        "ticketTramite": datos.tramite,
-        "ticketFecha": formatearFechaVisual(datos.fecha),
-        "ticketHora": datos.hora
+    // Extraer y sanitizar datos de forma segura
+    const datosCita = {
+      nombre: document.getElementById('nombre').value.trim(),
+      tramite: document.getElementById('tramite').options[document.getElementById('tramite').selectedIndex].text,
+      fecha: inputFecha.value.split('-').reverse().join('/'), // Convierte YYYY-MM-DD a DD/MM/YYYY
+      hora: selectHora.options[selectHora.selectedIndex].text
     };
 
-    Object.keys(campos).forEach(id => {
-        const elemento = document.getElementById(id);
-        if (elemento) elemento.textContent = campos[id];
-    });
+    // Renderizar la información en el Ticket final de forma elegante
+    ticketNombre.innerHTML = `
+      <span style="display:block; margin-bottom: 0.5rem;"><strong>Ciudadano:</strong> ${datosCita.nombre}</span>
+      <span style="display:block; margin-bottom: 0.5rem;"><strong>Servicio:</strong> ${datosCita.tramite}</span>
+      <span style="display:block; margin-bottom: 0.5rem;"><strong>Fecha:</strong> ${datosCita.fecha}</span>
+      <span style="display:block;"><strong>Horario asignado:</strong> ${datosCita.hora}</span>
+    `;
+
+    // Efecto visual fluido para mostrar el ticket
+    form.style.opacity = '0.3';
+    form.style.pointerEvents = 'none'; // Deshabilita interacciones posteriores
     
-    ticket.classList.remove("hidden");
-}
+    ticketCita.style.display = 'block';
+    ticketCita.style.opacity = '0';
+    ticketCita.style.transform = 'translateY(20px)';
+    ticketCita.style.transition = 'all 0.5s ease';
 
-// Función auxiliar para mostrar la fecha en formato DD/MM/AAAA en el ticket
-function formatearFechaVisual(fechaString) {
-    if (!fechaString) return "";
-    const partes = fechaString.split("-");
-    if (partes.length !== 3) return fechaString;
-    return `${partes[2]}/${partes[1]}/${partes[0]}`;
-}
+    // Disparador micro-timed para la animación de entrada
+    setTimeout(() => {
+      ticketCita.style.opacity = '1';
+      ticketCita.style.transform = 'translateY(0)';
+      ticketCita.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 50);
+  });
 
-function verificarCitaExistente() {
-    const citaGuardada = localStorage.getItem("citaCiudadana");
-    if (citaGuardada) {
-        try {
-            mostrarTicket(JSON.parse(citaGuardada));
-        } catch (e) {
-            localStorage.removeItem("citaCiudadana"); // Limpiar en caso de datos corruptos
-        }
+  // Ejecución inicial
+  inicializarFormulario();
+});
+
+// --- FUNCIONES GLOBALES (Para los botones superiores del HTML) ---
+window.seleccionarTramite = (idTramite) => {
+  const selectTramite = document.getElementById('tramite');
+  if (selectTramite) {
+    selectTramite.value = idTramite;
+    // Dispara manualmente el evento de scroll suave hacia el formulario
+    document.getElementById('contacto').scrollIntoView({ behavior: 'smooth' });
+  }
+};
+
+window.filtrarRequisitos = (categoria, botonActivo) => {
+  // Cambiar estado visual de los botones de filtro
+  document.querySelectorAll('.btn-filter').forEach(btn => btn.classList.remove('active'));
+  botonActivo.classList.add('active');
+
+  // Filtrar la lista de requisitos con opacidad y transiciones
+  document.querySelectorAll('.req-item').forEach(item => {
+    const categoriasItem = item.getAttribute('data-category').split(' ');
+    
+    if (categoria === 'todos' || categoriasItem.includes(categoria)) {
+      item.style.display = 'flex';
+    } else {
+      item.style.display = 'none';
     }
-}
-
-function cancelarCita() {
-    if (confirm("¿Estás seguro de que deseas cancelar o reagendar tu cita asignada?")) {
-        localStorage.removeItem("citaCiudadana");
-        
-        const ticket = document.getElementById("ticketCita");
-        const form = document.getElementById("formCitas");
-        
-        if (ticket) ticket.classList.add("hidden");
-        if (form) {
-            form.classList.remove("hidden");
-            form.reset();
-        }
-    }
-}
+  });
+};
