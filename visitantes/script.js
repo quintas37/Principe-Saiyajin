@@ -81,10 +81,15 @@ class GestorVisitantes {
       }
     });
 
-    document.getElementById('totalHoy').textContent = visitantesHoy.length;
-    document.getElementById('totalVehicular').textContent = vehicular;
-    document.getElementById('totalPeatonal').textContent = peatonal;
-    document.getElementById('totalMenores').textContent = menores;
+    const totalHoy = document.getElementById('totalHoy');
+    const totalVehicular = document.getElementById('totalVehicular');
+    const totalPeatonal = document.getElementById('totalPeatonal');
+    const totalMenores = document.getElementById('totalMenores');
+
+    if (totalHoy) totalHoy.textContent = visitantesHoy.length;
+    if (totalVehicular) totalVehicular.textContent = vehicular;
+    if (totalPeatonal) totalPeatonal.textContent = peatonal;
+    if (totalMenores) totalMenores.textContent = menores;
   }
 }
 
@@ -93,19 +98,33 @@ const gestor = new GestorVisitantes();
 
 // ========== FUNCIONES DE NAVEGACIÓN ==========
 function mostrarSeccion(seccionId) {
+  console.log('Mostrando sección:', seccionId);
+  
   // Ocultar todas las secciones
-  document.querySelectorAll('.seccion').forEach(sec => {
+  const secciones = document.querySelectorAll('.seccion');
+  secciones.forEach(sec => {
     sec.classList.remove('active');
   });
 
   // Mostrar la sección seleccionada
-  document.getElementById(seccionId).classList.add('active');
+  const seccionActual = document.getElementById(seccionId);
+  if (seccionActual) {
+    seccionActual.classList.add('active');
+  }
 
   // Actualizar navegación
-  document.querySelectorAll('.nav-link').forEach(link => {
+  const navLinks = document.querySelectorAll('.nav-link');
+  navLinks.forEach(link => {
     link.classList.remove('active');
   });
-  event.target.classList.add('active');
+
+  // Buscar y activar el enlace correcto
+  const enlaceActivo = Array.from(navLinks).find(link => 
+    link.getAttribute('onclick').includes(`'${seccionId}'`)
+  );
+  if (enlaceActivo) {
+    enlaceActivo.classList.add('active');
+  }
 
   // Si es consulta, recargar tabla
   if (seccionId === 'consulta') {
@@ -113,30 +132,47 @@ function mostrarSeccion(seccionId) {
   }
 }
 
-// ========== FORMULARIO DE REGISTRO ==========
+// ========== INICIALIZACIÓN DEL DOM ==========
 document.addEventListener('DOMContentLoaded', function() {
+  console.log('DOM cargado');
+  
   // Establecer fecha mínima a hoy
   const inputFecha = document.getElementById('fecha');
-  const hoy = new Date().toISOString().split('T')[0];
-  inputFecha.min = hoy;
-  inputFecha.value = hoy;
+  if (inputFecha) {
+    const hoy = new Date().toISOString().split('T')[0];
+    inputFecha.min = hoy;
+    inputFecha.value = hoy;
+  }
 
   // Evento del formulario
-  document.getElementById('formVisitante').addEventListener('submit', guardarVisitante);
+  const formVisitante = document.getElementById('formVisitante');
+  if (formVisitante) {
+    formVisitante.addEventListener('submit', guardarVisitante);
+    console.log('Formulario vinculado');
+  }
 
   // Inicializar estadísticas
   gestor.actualizarEstadisticas();
+  
+  // Mostrar primera sección por defecto
+  mostrarSeccion('inicio');
 });
 
+// ========== FUNCIONES DEL FORMULARIO ==========
 function actualizarFormulario() {
-  const tipoAcceso = document.querySelector('input[name="tipoAcceso"]:checked').value;
+  console.log('Actualizando formulario');
+  
+  const tipoAcceso = document.querySelector('input[name="tipoAcceso"]:checked');
+  if (!tipoAcceso) return;
+  
+  const valor = tipoAcceso.value;
   const datosVehiculares = document.getElementById('datosVehiculares');
   const placaInput = document.getElementById('placa');
   const marcaInput = document.getElementById('marca');
   const colorInput = document.getElementById('color');
   const conductorInput = document.getElementById('conductor');
 
-  if (tipoAcceso === 'vehicular') {
+  if (valor === 'vehicular') {
     datosVehiculares.style.display = 'block';
     placaInput.required = true;
     marcaInput.required = true;
@@ -156,6 +192,8 @@ function actualizarFormulario() {
 }
 
 function toggleMenores() {
+  console.log('Toggle menores');
+  
   const checkbox = document.getElementById('acompanaMenores');
   const seccionMenores = document.getElementById('seccionMenores');
   const cantidadMenores = document.getElementById('cantidadMenores');
@@ -172,9 +210,13 @@ function toggleMenores() {
 }
 
 function generarCamposMenores() {
+  console.log('Generando campos de menores');
+  
   const cantidad = parseInt(document.getElementById('cantidadMenores').value);
   const contenedor = document.getElementById('camposMenores');
   contenedor.innerHTML = '';
+
+  if (isNaN(cantidad) || cantidad <= 0) return;
 
   for (let i = 1; i <= cantidad; i++) {
     const div = document.createElement('div');
@@ -189,6 +231,14 @@ function generarCamposMenores() {
 
 function guardarVisitante(e) {
   e.preventDefault();
+  console.log('Guardando visitante');
+
+  // Validar que se seleccione tipo de acceso
+  const tipoAccesoSeleccionado = document.querySelector('input[name="tipoAcceso"]:checked');
+  if (!tipoAccesoSeleccionado) {
+    alert('Debe seleccionar un tipo de acceso');
+    return;
+  }
 
   // Recopilar datos del formulario
   const visitante = {
@@ -197,7 +247,7 @@ function guardarVisitante(e) {
     telefono: document.getElementById('telefono').value,
     correo: document.getElementById('correo').value,
     empresa: document.getElementById('empresa').value,
-    tipoAcceso: document.querySelector('input[name="tipoAcceso"]:checked').value,
+    tipoAcceso: tipoAccesoSeleccionado.value,
     placa: document.getElementById('placa').value,
     marca: document.getElementById('marca').value,
     color: document.getElementById('color').value,
@@ -216,28 +266,33 @@ function guardarVisitante(e) {
   if (visitante.cantidadMenores) {
     const cantidad = parseInt(visitante.cantidadMenores);
     for (let i = 1; i <= cantidad; i++) {
-      const nombreMenor = document.getElementById(`menor${i}`)?.value;
-      if (nombreMenor) {
-        visitante.menores.push(nombreMenor);
+      const inputMenor = document.getElementById(`menor${i}`);
+      if (inputMenor && inputMenor.value) {
+        visitante.menores.push(inputMenor.value);
       }
     }
   }
+
+  console.log('Visitante a guardar:', visitante);
 
   // Guardar en gestor
   gestor.agregarVisitante(visitante);
 
   // Mostrar mensaje de éxito
   const mensajeExito = document.getElementById('mensajeExito');
-  mensajeExito.style.display = 'flex';
-  setTimeout(() => {
-    mensajeExito.style.display = 'none';
-  }, 5000);
+  if (mensajeExito) {
+    mensajeExito.style.display = 'flex';
+    setTimeout(() => {
+      mensajeExito.style.display = 'none';
+    }, 5000);
+  }
 
   // Limpiar formulario
   document.getElementById('formVisitante').reset();
   document.getElementById('datosVehiculares').style.display = 'none';
   document.getElementById('seccionMenores').style.display = 'none';
   document.getElementById('camposMenores').innerHTML = '';
+  document.getElementById('acompanaMenores').checked = false;
   
   // Establecer fecha a hoy
   const hoy = new Date().toISOString().split('T')[0];
@@ -245,15 +300,21 @@ function guardarVisitante(e) {
 
   // Actualizar estadísticas
   gestor.actualizarEstadisticas();
+  
+  alert('✓ ¡Visitante registrado exitosamente!');
 }
 
 // ========== CONSULTA Y FILTROS ==========
 function mostrarVisitantes() {
+  console.log('Mostrando visitantes');
+  
   const filtros = {
-    fecha: document.getElementById('filtroFecha').value,
-    tipo: document.getElementById('filtroTipo').value,
-    nombre: document.getElementById('filtroBusqueda').value
+    fecha: document.getElementById('filtroFecha').value || '',
+    tipo: document.getElementById('filtroTipo').value || '',
+    nombre: document.getElementById('filtroBusqueda').value || ''
   };
+
+  console.log('Filtros:', filtros);
 
   const visitantes = gestor.filtrar(filtros);
   const cuerpoTabla = document.getElementById('cuerpoTabla');
@@ -268,7 +329,7 @@ function mostrarVisitantes() {
       <td>${v.nombre}</td>
       <td>${v.documento}</td>
       <td>
-        <span style="background-color: ${v.tipoAcceso === 'vehicular' ? '#eff6ff' : '#f0fdf4'}; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.85rem;">
+        <span style="background-color: ${v.tipoAcceso === 'vehicular' ? '#eff6ff' : '#f0fdf4'}; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.85rem; color: #1f2937;">
           ${v.tipoAcceso === 'vehicular' ? '🚗 Vehicular' : '🚶 Peatonal'}
         </span>
       </td>
@@ -286,10 +347,12 @@ function mostrarVisitantes() {
 }
 
 function filtrarVisitantes() {
+  console.log('Filtrando visitantes');
   mostrarVisitantes();
 }
 
 function limpiarFiltros() {
+  console.log('Limpiando filtros');
   document.getElementById('filtroFecha').value = '';
   document.getElementById('filtroTipo').value = '';
   document.getElementById('filtroBusqueda').value = '';
@@ -297,15 +360,19 @@ function limpiarFiltros() {
 }
 
 function eliminarVisitante(id) {
+  console.log('Eliminando visitante:', id);
   if (confirm('¿Estás seguro de que deseas eliminar este registro?')) {
     gestor.eliminarPorId(id);
     mostrarVisitantes();
     gestor.actualizarEstadisticas();
+    alert('✓ Registro eliminado');
   }
 }
 
 // ========== ARCHIVO Y EXPORTACIÓN ==========
 function estadisticasArchivo() {
+  console.log('Mostrando estadísticas');
+  
   const todos = gestor.obtenerVisitantes();
   const vehicular = todos.filter(v => v.tipoAcceso === 'vehicular').length;
   const peatonal = todos.filter(v => v.tipoAcceso === 'peatonal').length;
@@ -317,16 +384,25 @@ function estadisticasArchivo() {
     }
   });
 
-  document.getElementById('totalVisitantes').textContent = todos.length;
-  document.getElementById('totalVehicularArchivo').textContent = vehicular;
-  document.getElementById('totalPeatonalArchivo').textContent = peatonal;
-  document.getElementById('totalMenoresArchivo').textContent = menores;
+  const totalVisitantes = document.getElementById('totalVisitantes');
+  const totalVehicularArchivo = document.getElementById('totalVehicularArchivo');
+  const totalPeatonalArchivo = document.getElementById('totalPeatonalArchivo');
+  const totalMenoresArchivo = document.getElementById('totalMenoresArchivo');
+
+  if (totalVisitantes) totalVisitantes.textContent = todos.length;
+  if (totalVehicularArchivo) totalVehicularArchivo.textContent = vehicular;
+  if (totalPeatonalArchivo) totalPeatonalArchivo.textContent = peatonal;
+  if (totalMenoresArchivo) totalMenoresArchivo.textContent = menores;
 
   const estadisticas = document.getElementById('estadisticas');
-  estadisticas.style.display = 'block';
+  if (estadisticas) {
+    estadisticas.style.display = 'block';
+  }
 }
 
 function exportarExcel() {
+  console.log('Exportando a Excel');
+  
   const visitantes = gestor.obtenerVisitantes();
   
   if (visitantes.length === 0) {
@@ -337,13 +413,25 @@ function exportarExcel() {
   let csv = 'Nombre,Documento,Teléfono,Correo,Empresa,Tipo Acceso,Placa,Marca,Color,Conductor,Cantidad Menores,Motivo,Departamento,Persona Contacto,Fecha,Hora Entrada,Hora Salida\n';
 
   visitantes.forEach(v => {
-    csv += `"${v.nombre}","${v.documento}","${v.telefono}","${v.correo}","${v.empresa}","${v.tipoAcceso}","${v.placa}","${v.marca}","${v.color}","${v.conductor}","${v.cantidadMenores}","${v.motivo}","${v.departamento}","${v.persona_contacto}","${v.fecha}","${v.hora}","${v.horaSalida}"\n`;
+    const nombre = (v.nombre || '').replace(/"/g, '""');
+    const documento = (v.documento || '').replace(/"/g, '""');
+    const correo = (v.correo || '').replace(/"/g, '""');
+    const empresa = (v.empresa || '').replace(/"/g, '""');
+    const placa = (v.placa || '').replace(/"/g, '""');
+    const marca = (v.marca || '').replace(/"/g, '""');
+    const conductor = (v.conductor || '').replace(/"/g, '""');
+    const motivo = (v.motivo || '').replace(/"/g, '""');
+    const persona = (v.persona_contacto || '').replace(/"/g, '""');
+    
+    csv += `"${nombre}","${documento}","${v.telefono}","${correo}","${empresa}","${v.tipoAcceso}","${placa}","${marca}","${v.color}","${conductor}","${v.cantidadMenores}","${motivo}","${v.departamento}","${persona}","${v.fecha}","${v.hora}","${v.horaSalida}"\n`;
   });
 
   descargarArchivo(csv, 'visitantes.csv', 'text/csv;charset=utf-8;');
 }
 
 function exportarPDF() {
+  console.log('Exportando a PDF');
+  
   const visitantes = gestor.obtenerVisitantes();
   
   if (visitantes.length === 0) {
@@ -371,7 +459,7 @@ function exportarPDF() {
       contenido += `  - Conductor: ${v.conductor}\n`;
     }
 
-    if (v.menores.length > 0) {
+    if (v.menores && v.menores.length > 0) {
       contenido += `Menores: ${v.menores.join(', ')}\n`;
     }
 
@@ -388,29 +476,30 @@ function exportarPDF() {
 }
 
 function descargarArchivo(contenido, nombreArchivo, tipo) {
-  const elemento = document.createElement('a');
-  elemento.setAttribute('href', `data:${tipo}base64,${btoa(unescape(encodeURIComponent(contenido)))}`);
-  elemento.setAttribute('download', nombreArchivo);
-  elemento.style.display = 'none';
-  document.body.appendChild(elemento);
-  elemento.click();
-  document.body.removeChild(elemento);
+  console.log('Descargando archivo:', nombreArchivo);
+  
+  const blob = new Blob([contenido], { type: tipo });
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = nombreArchivo;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  window.URL.revokeObjectURL(url);
 }
 
 function confirmarLimpiarArchivo() {
+  console.log('Confirmar limpiar archivo');
+  
   const confirmacion = prompt('Esto eliminará todos los registros de más de 30 días. Escribe "CONFIRMAR" para continuar:');
   
   if (confirmacion === 'CONFIRMAR') {
     const eliminados = gestor.limpiarAntiguos(30);
-    alert(`Se han eliminado ${eliminados} registros antiguos.`);
+    alert(`✓ Se han eliminado ${eliminados} registros antiguos.`);
     gestor.actualizarEstadisticas();
   }
 }
 
-// ========== INICIALIZACIÓN ==========
-window.addEventListener('load', function() {
-  gestor.actualizarEstadisticas();
-  
-  // Mostrar primera sección por defecto
-  mostrarSeccion('inicio');
-});
+// ========== LOG DE INICIALIZACIÓN ==========
+console.log('Script de visitantes cargado correctamente');
