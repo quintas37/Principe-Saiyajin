@@ -3,10 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sistema de Registro de Visitantes</title>
+  <title>Sistema de Registro de Visitantes - Portal Web</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="style.css">
-  <script src="script.js" defer></script>
 </head>
 <body>
 
@@ -18,10 +17,10 @@
         <span>Control de Visitantes</span>
       </div>
       <nav class="nav">
-        <a href="#" onclick="mostrarSeccion('inicio')" class="nav-link active">Inicio</a>
-        <a href="#" onclick="mostrarSeccion('registro')" class="nav-link">Nuevo Registro</a>
-        <a href="#" onclick="mostrarSeccion('consulta')" class="nav-link">Consultar Visitantes</a>
-        <a href="#" onclick="mostrarSeccion('archivo')" class="nav-link">Archivo</a>
+        <a href="javascript:void(0)" onclick="mostrarSeccion('inicio'); return false;" class="nav-link active">Inicio</a>
+        <a href="javascript:void(0)" onclick="mostrarSeccion('registro'); return false;" class="nav-link">Nuevo Registro</a>
+        <a href="javascript:void(0)" onclick="mostrarSeccion('consulta'); return false;" class="nav-link">Consultar Visitantes</a>
+        <a href="javascript:void(0)" onclick="mostrarSeccion('archivo'); return false;" class="nav-link">Archivo</a>
       </nav>
     </div>
   </header>
@@ -234,7 +233,7 @@
       </form>
 
       <!-- Mensaje de confirmación -->
-      <div id="mensajeExito" class="alert alert-success hidden" style="display: none;">
+      <div id="mensajeExito" class="alert alert-success hidden" style="display: none; margin-top: 2rem;">
         <i class="fas fa-check-circle"></i>
         <strong>¡Registro Guardado!</strong> El visitante ha sido registrado exitosamente.
       </div>
@@ -262,7 +261,7 @@
             <label for="filtroBusqueda">Buscar por Nombre</label>
             <input type="text" id="filtroBusqueda" placeholder="Nombre del visitante" onkeyup="filtrarVisitantes()">
           </div>
-          <button class="btn btn-secondary" onclick="limpiarFiltros()">
+          <button class="btn btn-secondary" onclick="limpiarFiltros()" style="align-self: flex-end;">
             <i class="fas fa-redo"></i> Limpiar Filtros
           </button>
         </div>
@@ -357,6 +356,8 @@
   <footer class="footer">
     <p>&copy; 2026 Sistema de Control de Visitantes. Todos los derechos reservados.</p>
   </footer>
+
+  <script src="script.js"></script>
 
 </body>
 </html>
