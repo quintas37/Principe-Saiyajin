@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal de Servicios Ciudadanos</title>
+  <link rel="stylesheet" href="styles1.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+
+  <!-- 🏷️ ENCABEZADO Y NAVEGACIÓN -->
+  <header class="header" id="mainHeader">
+    <div class="header-container">
+      <div class="logo">
+        <i class="fa-solid fa-landmark"></i> 
+        <span>Ciudadanos</span>
+      </div>
+      <nav class="nav" aria-label="Navegación principal">
+        <a href="#inicio">Inicio</a>
+        <a href="#servicios">Servicios</a>
+        <a href="#requisitos">Requisitos</a>
+        <a href="#ubicacion">Oficinas</a>
+        <a href="#contacto" class="btn-nav">Agendar Cita</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- CONTENEDOR PRINCIPAL SEMÁNTICO -->
+  <main>
+    
+    <!-- 🏠 PORTADA PRINCIPAL (HERO) -->
+    <section id="inicio" class="hero">
+      <div class="hero-content">
+        <span class="badge">Gobierno Digital 2026</span>
+        <h1>Gobierno <br><span class="gradient-text">más rápido y digital</span></h1>
+        <p>Gestiona trámites, consulta requerimientos oficiales en tiempo real y obtén atención prioritaria agendando tu cita digital.</p>
+        <div class="hero-buttons">
+          <a href="#servicios" class="btn-primary">Explorar Servicios</a>
+          <a href="#contacto" class="btn-secondary">Agendar Cita Directa</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 🛠️ SECCIÓN: SERVICIOS -->
+    <section id="servicios" class="section bg-light">
+      <span class="section-tag">Trámites</span>
+      <h2 class="section-title">¿Qué servicio necesitas realizar?</h2>
+      <div class="grid-container">
+        
+        <button class="card" onclick="seleccionarTramite('vehicular')" type="button" aria-label="Consultar requisitos para Control Vehicular">
+          <div class="card-icon icon-blue"><i class="fa-solid fa-car"></i></div>
+          <h3>Control Vehicular</h3>
+          <p>Renovación de licencias de conducir, alta de placas y pago de tenencias locales.</p>
+          <span class="card-link">Consultar Requisitos <i class="fa-solid fa-arrow-right"></i></span>
+        </button>
+
+        <button class="card" onclick="seleccionarTramite('civil')" type="button" aria-label="Consultar requisitos para Registro Civil">
+          <div class="card-icon icon-purple"><i class="fa-solid fa-id-card"></i></div>
+          <h3>Registro Civil</h3>
+          <p>Solicitud de actas de nacimiento, matrimonio, defunción y claves de identidad de forma oficial.</p>
+          <span class="card-link">Consultar Requisitos <i class="fa-solid fa-arrow-right"></i></span>
+        </button>
+
+        <button class="card" onclick="seleccionarTramite('predial')" type="button" aria-label="Consultar requisitos para Predial y Catastro">
+          <div class="card-icon icon-green"><i class="fa-solid fa-house-chimney"></i></div>
+          <h3>Predial y Catastro</h3>
+          <p>Consulta de estados de cuenta, pago anual del impuesto predial y avalúos de propiedad.</p>
+          <span class="card-link">Consultar Requisitos <i class="fa-solid fa-arrow-right"></i></span>
+        </button>
+
+      </div>
+    </section>
+
+    <!-- 📋 SECCIÓN: REQUISITOS DINÁMICOS -->
+    <section id="requisitos" class="section">
+      <span class="section-tag">Documentación</span>
+      <h2 class="section-title">Requisitos según tu trámite</h2>
+      <p class="section-subtitle">Selecciona un trámite arriba o escoge uno aquí para desplegar la información:</p>
+      
+      <div class="filter-container">
+        <button class="btn-filter active" onclick="filtrarRequisitos('todos', this)">Todos los requisitos</button>
+        <button class="btn-filter" onclick="filtrarRequisitos('vehicular', this)">Control Vehicular</button>
+        <button class="btn-filter" onclick="filtrarRequisitos('civil', this)">Registro Civil</button>
+        <button class="btn-filter" onclick="filtrarRequisitos('predial', this)">Predial</button>
+      </div>
+
+      <div class="requisitos-list" id="listaRequisitos">
+        <div class="req-item" data-category="vehicular civil predial">
+          <div class="req-icon"><i class="fa-solid fa-passport"></i></div>
+          <div>
+            <strong>Identificación Oficial Vigente</strong>
+            <p>Original y copia de INE, Pasaporte vigente o Cédula Profesional con fotografía.</p>
+          </div>
+        </div>
+        <div class="req-item" data-category="vehicular civil predial">
+          <div class="req-icon"><i class="fa-solid fa-map-location-dot"></i></div>
+          <div>
+            <strong>Comprobante de Domicilio Local</strong>
+            <p>Recibo de luz, agua, teléfono o predial (antigüedad máxima de 3 meses).</p>
+          </div>
+        </div>
+        <div class="req-item" data-category="vehicular">
+          <div class="req-icon"><i class="fa-solid fa-id-badge"></i></div>
+          <div>
+            <strong>Licencia o Documento de Propiedad Anterior</strong>
+            <p>Tarjeta de circulación vigente o factura original del vehículo según sea el caso.</p>
+          </div>
+        </div>
+        <div class="req-item" data-category="civil">
+          <div class="req-icon"><i class="fa-solid fa-users"></i></div>
+          <div>
+            <strong>Formato de Solicitud de Registro</strong>
+            <p>Copia certificada previa o CURP actualizada impresa directamente del sistema oficial.</p>
+          </div>
+        </div>
+        <div class="req-item" data-category="predial">
+          <div class="req-icon"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+          <div>
+            <strong>Clave Catastral</strong>
+            <p>Boleta predial del año anterior o documento oficial con el número de cuenta asignado.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 📍 SECCIÓN: UBICACIÓN -->
+    <section id="ubicacion" class="section bg-light">
+      <span class="section-tag">Atención Presencial</span>
+      <h2 class="section-title">Ubicación y Oficinas de Atención</h2>
+      <div class="grid-container geo-grid">
+        <div class="office-info-card">
+          <h3>Centro de Atención Ciudadana Central</h3>
+          <div class="info-link"><i class="fa-solid fa-location-dot"></i> Av. de los Ciudadanos No. 450, Col. Centro</div>
+          <div class="info-link"><i class="fa-solid fa-clock"></i> Lunes a Viernes: 8:00 a.m. a 3:00 p.m.</div>
+          <div class="info-link"><i class="fa-solid fa-phone"></i> 55-1234-5678 (Ext. 101)</div>
+        </div>
+        <div class="office-map-container">
+          <div class="glass-map">
+            <i class="fa-solid fa-map-marked-alt map-pulse"></i>
+            <p>Mapa Interactivo Optimizado</p>
+            <span class="map-coordinates">Centro Operativo Principal</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 📅 SECCIÓN: CONTACTO O CITAS -->
+    <section id="contacto" class="section">
+      <span class="section-tag">Agenda Digital</span>
+      <h2 class="section-title">Genera tu Cita de Atención</h2>
+      <p class="section-subtitle">Rellena el formulario; nuestro sistema bloqueará automáticamente horarios no hábiles.</p>
+      
+      <form class="appointment-form" id="formCitas">
+        <div class="form-group">
+          <label for="nombre"><i class="fa-solid fa-user"></i> Nombre Completo</label>
+          <input type="text" id="nombre" required placeholder="Ej. Isaias Quintas Morales">
+        </div>
+        
+        <div class="form-group">
+          <label for="tramite"><i class="fa-solid fa-list-check"></i> Tipo de Trámite</label>
+          <select id="tramite" required>
+            <option value="" disabled selected>-- Selecciona una opción --</option>
+            <option value="vehicular">Control Vehicular</option>
+            <option value="civil">Registro Civil</option>
+            <option value="predial">Predial y Catastro</option>
+          </select>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="fecha"><i class="fa-solid fa-calendar-days"></i> Fecha Disponible</label>
+            <input type="date" id="fecha" required>
+            <span class="input-tip">* Lunes a viernes únicamente</span>
+            <!-- Alerta integrada para errores de fecha -->
+            <div id="error-fecha" class="error-message" style="display: none; color: #d32f2f; font-size: 0.85rem; margin-top: 5px;">
+              <i class="fa-solid fa-triangle-exclamation"></i> Los fines de semana no están operativos.
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="hora"><i class="fa-solid fa-clock"></i> Hora de Atención</label>
+            <!-- Limpieza completa del select. Se rellenará dinámicamente mediante JS -->
+            <select id="hora" required>
+              <option value="" disabled selected>-- Selecciona --</option>
+            </select>
+            <span class="input-tip">* Horarios de 9:00 a 18:00</span>
+          </div>
+        </div>
+        
+        <button type="submit" class="btn-submit">Avanzar y Confirmar <i class="fa-solid fa-circle-check"></i></button>
+      </form>
+
+      <!-- Ticket de cita confirmada -->
+      <div id="ticketCita" class="ticket hidden" style="display: none;">
+        <div class="ticket-header">
+          <h3><i class="fa-solid fa-circle-check"></i> Cita Confirmada Exitosamente</h3>
+        </div>
+        <div class="ticket-body">
+          <p><strong>Titular:</strong> <span id="ticketNombre"></span></p>
+        </div>
+      </div>
+    </section>
+<footer class="footer">
+</footer>
+    <div class="footer-container">
+      <p>&copy; 2026 Isaias Quintas. Todos los derechos reservados.</p>
+      <div class="social-links">
+        <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+        <a href="#" aria-label="Twitter"><i class="fa-brands fa-twitter"></i></a>
+        <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+        <a href="#" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+      </div>
+    </div>
+</footer>    
+  </main>
+
+</body>
+</html>
